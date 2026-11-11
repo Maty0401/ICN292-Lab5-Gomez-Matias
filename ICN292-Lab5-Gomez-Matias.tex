@@ -1,0 +1,332 @@
+\documentclass[11pt,letterpaper]{article}
+
+%%% IDIOMA
+\usepackage[english,spanish]{babel}
+\addto\shorthandsspanish{\spanishdeactivate{~<>}}
+
+%%% CODIFICACIÓN Y FUENTES
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+%%% PAQUETES
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{float}
+
+%%% COLORES INSTITUCIONALES USM
+\definecolor{usmblue}{RGB}{0,45,98}
+\definecolor{usmgray}{RGB}{88,89,91}
+\definecolor{usmlight}{RGB}{234,240,247}
+
+%%% CONFIGURACIÓN DE LISTINGS PARA SQL
+\lstset{
+    language=SQL,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{usmblue}\bfseries,
+    stringstyle=\color{red!70!black},
+    commentstyle=\color{usmgray}\itshape,
+    backgroundcolor=\color{usmlight},
+    frame=single,
+    rulecolor=\color{usmblue},
+    breaklines=true,
+    keepspaces=true,
+    showstringspaces=false,
+    belowskip=1em,
+    aboveskip=1em,
+    inputencoding=utf8,
+    extendedchars=true,
+    literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+             {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+             {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {ü}{{\"u}}1 {Ü}{{\"U}}1
+}
+
+%%% siunitx: formato chileno (punto de miles, coma decimal)
+\sisetup{output-decimal-marker={,},group-separator={.},group-minimum-digits=4}
+\newcommand{\clp}[1]{\$\num{#1}}
+
+%%% TÍTULOS
+\titleformat{\section}{\color{usmblue}\Large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\color{usmblue}\large\bfseries}{\thesubsection.}{0.5em}{}
+\titleformat{\subsubsection}{\color{usmgray}\normalsize\bfseries}{\thesubsubsection.}{0.5em}{}
+
+%%% ENCABEZADO / PIE
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.8pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancyhead[L]{\footnotesize\textcolor{usmblue}{\textbf{Universidad Técnica Federico Santa María}}\\ \footnotesize\textcolor{usmgray}{ICN-292 --- Sistemas de Información para la Gestión}}
+\fancyhead[R]{\footnotesize\textcolor{usmblue}{\textbf{Departamento de Industrias}}\\ \footnotesize\textcolor{usmgray}{Segundo Semestre 2026}}
+\fancyfoot[C]{\footnotesize\textcolor{usmgray}{\thepage}}
+
+%%% CAJAS
+\newtcolorbox{cajaformula}{colback=usmlight,colframe=usmblue,boxrule=0.6pt,arc=2pt,left=6pt,right=6pt,top=4pt,bottom=4pt}
+\newtcolorbox{cajanota}{colback=white,colframe=usmgray,boxrule=0.6pt,arc=2pt,left=6pt,right=6pt,top=4pt,bottom=4pt}
+
+\begin{document}
+
+%%--------------------------------------------------
+%% PORTADA
+%%--------------------------------------------------
+\begin{titlepage}
+\centering
+\vspace*{1cm}
+\IfFileExists{logo-usm.png}{\includegraphics[width=4.5cm]{logo-usm.png}\\[0.6cm]}{\vspace{0.6cm}}
+{\color{usmblue}\rule{\textwidth}{2pt}}\\[0.4cm]
+{\LARGE\bfseries\color{usmblue} Universidad Técnica Federico Santa María}\\[0.2cm]
+{\large\color{usmgray} Departamento de Industrias}\\[0.2cm]
+{\large\color{usmgray} ICN-292 --- Sistemas de Información para la Gestión}\\[0.3cm]
+{\color{usmblue}\rule{\textwidth}{2pt}}\\[2.5cm]
+
+{\Huge\bfseries Laboratorio 5: SQL y Bases de Datos\\[0.3cm] Creación de la Base y Consultas}\\[0.6cm]
+{\Large\itshape Andes Bike}\\[0.4cm]
+{\large Creación del modelo relacional, carga oficial y diez consultas de validación}\\[2.5cm]
+
+\begin{tabular}{rl}
+\textbf{Autor:} & Matías Gómez \\[0.3em]
+\textbf{Rol USM:} & 202360624-3 \\[0.3em]
+\textbf{Paralelo:} & 100 \\[0.3em]
+\textbf{Profesores:} & José Miguel González Paul \\[0.3em]
+ & José Luis Sáez Tamayo \\[0.3em]
+ & Patricio Cifuentes \\[0.3em]
+\textbf{Repositorio GitHub:} & \url{https://github.com/Maty0401/ICN292-Lab5-Gomez-Matias} \\[0.3em]
+\textbf{Fecha:} & 11 de noviembre de 2026 \\
+\end{tabular}
+
+\vfill
+{\color{usmblue}\rule{\textwidth}{1pt}}
+\end{titlepage}
+
+\newpage
+%%--------------------------------------------------
+\section*{Consultas SQL}
+\addcontentsline{toc}{section}{Consultas SQL}
+%%--------------------------------------------------
+
+A continuación se presenta, para cada una de las diez consultas solicitadas, el código SQL tal como fue ejecutado y la captura del resultado devuelto por MySQL Workbench sobre la carga oficial de la base \texttt{andesbike}.
+
+
+\subsection*{Consulta 1}
+Liste todos los vendedores con la cantidad de ventas que registraron, incluidos los que no registraron ninguna. Ordene de mayor a menor cantidad y, a igualdad, por nombre. Los que no tienen ventas deben mostrar cero, no quedar en blanco.
+
+\begin{lstlisting}
+SELECT  v.nombre                AS vendedor,
+        COUNT(ve.id_venta)      AS cantidad_ventas
+FROM       vendedores v
+LEFT JOIN  ventas     ve  ON ve.id_vendedor = v.id_vendedor
+GROUP BY   v.id_vendedor, v.nombre
+ORDER BY   cantidad_ventas DESC, v.nombre ASC;
+\end{lstlisting}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Captura de pantalla 2026-11-11 143407.png}
+    \caption{Resultado de la Consulta 1 en MySQL Workbench.}
+\end{figure}
+
+\subsection*{Consulta 2}
+Para cada tienda muestre su nombre, cuántas ventas se registraron y cuántas unidades se vendieron, incluidas las tiendas que no tienen ningún vendedor. Ordene por unidades de mayor a menor.
+
+\begin{lstlisting}
+SELECT  t.nombre                          AS tienda,
+        COUNT(ve.id_venta)                AS ventas_registradas,
+        COALESCE(SUM(ve.unidades), 0)     AS unidades_vendidas
+FROM       tiendas    t
+LEFT JOIN  vendedores v   ON v.id_tienda    = t.id_tienda
+LEFT JOIN  ventas     ve  ON ve.id_vendedor = v.id_vendedor
+GROUP BY   t.id_tienda, t.nombre
+ORDER BY   unidades_vendidas DESC;
+\end{lstlisting}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Captura de pantalla 2026-11-11 143431.png}
+    \caption{Resultado de la Consulta 2 en MySQL Workbench.}
+\end{figure}
+
+\subsection*{Consulta 3}
+Liste las tiendas que no tienen ningún vendedor asignado.
+
+\begin{lstlisting}
+SELECT  t.id_tienda,
+        t.nombre   AS tienda,
+        t.comuna
+FROM       tiendas    t
+LEFT JOIN  vendedores v  ON v.id_tienda = t.id_tienda
+WHERE      v.id_vendedor IS NULL
+ORDER BY   t.nombre;
+\end{lstlisting}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Captura de pantalla 2026-11-11 143443.png}
+    \caption{Resultado de la Consulta 3 en MySQL Workbench.}
+\end{figure}
+
+\subsection*{Consulta 4}
+Liste los modelos que no se vendieron ni una sola vez en junio de 2025.
+
+\begin{lstlisting}
+SELECT  b.modelo,
+        b.categoria,
+        b.precio
+FROM       bicicletas b
+LEFT JOIN  ventas     ve
+       ON  ve.id_bicicleta = b.id_bicicleta
+      AND  ve.fecha >= '2025-06-01'
+      AND  ve.fecha  < '2025-07-01'
+WHERE      ve.id_venta IS NULL
+ORDER BY   b.modelo;
+\end{lstlisting}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Captura de pantalla 2026-11-11 143516.png}
+    \caption{Resultado de la Consulta 4 en MySQL Workbench.}
+\end{figure}
+
+\begin{cajanota}
+\textbf{Ubicación de la condición del mes:} la condición de junio de 2025 está puesta en el \texttt{ON} del \texttt{LEFT JOIN}, de modo que el join trae únicamente las ventas de ese mes y el \texttt{WHERE ve.id\_venta IS NULL} deja los modelos que no tuvieron ninguna; si esa misma condición se hubiera puesto en el \texttt{WHERE}, se evaluaría después del join sobre filas ya rellenadas con \texttt{NULL}, chocaría con la condición \texttt{IS NULL} y la consulta habría devuelto cero filas.
+\end{cajanota}
+
+\subsection*{Consulta 5}
+Liste los vendedores que no han registrado ninguna venta, mostrando también el nombre de su tienda. Ninguno de ellos puede quedar fuera del resultado.
+
+\begin{lstlisting}
+SELECT  v.nombre                                      AS vendedor,
+        COALESCE(t.nombre, '(sin tienda asignada)')   AS tienda,
+        v.fecha_ingreso
+FROM       vendedores v
+LEFT JOIN  tiendas    t   ON t.id_tienda    = v.id_tienda
+LEFT JOIN  ventas     ve  ON ve.id_vendedor = v.id_vendedor
+WHERE      ve.id_venta IS NULL
+ORDER BY   v.nombre;
+\end{lstlisting}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Captura de pantalla 2026-11-11 143529.png}
+    \caption{Resultado de la Consulta 5 en MySQL Workbench.}
+\end{figure}
+
+\subsection*{Consulta 6}
+Liste los pares de vendedores que trabajan en la misma tienda, poniendo primero al que ingresó antes. Muestre los dos nombres, las dos fechas de ingreso y la tienda. Cada par debe aparecer una sola vez.
+
+\begin{lstlisting}
+SELECT  t.nombre          AS tienda,
+        a.nombre          AS vendedor_mas_antiguo,
+        a.fecha_ingreso   AS ingreso_mas_antiguo,
+        b.nombre          AS vendedor_mas_nuevo,
+        b.fecha_ingreso   AS ingreso_mas_nuevo
+FROM  vendedores a
+JOIN  vendedores b
+   ON  a.id_tienda = b.id_tienda
+  AND (a.fecha_ingreso <  b.fecha_ingreso
+   OR (a.fecha_ingreso =  b.fecha_ingreso
+       AND a.id_vendedor < b.id_vendedor))
+JOIN  tiendas t ON t.id_tienda = a.id_tienda
+ORDER BY t.nombre, a.fecha_ingreso, b.fecha_ingreso;
+\end{lstlisting}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Captura de pantalla 2026-11-11 143621.png}
+    \caption{Resultado de la Consulta 6 en MySQL Workbench.}
+\end{figure}
+
+\subsection*{Consulta 7}
+Para cada tienda, calcule el monto total vendido en bicicletas de las categorías \texttt{'Montaña'} y \texttt{'Ruta'}, dejando solo las tiendas que superan los \clp{2000000}. Ordene de mayor a menor.
+
+\begin{lstlisting}
+SELECT  t.nombre                          AS tienda,
+        SUM(ve.unidades * b.precio)       AS monto_total
+FROM  tiendas    t
+JOIN  vendedores v   ON v.id_tienda     = t.id_tienda
+JOIN  ventas     ve  ON ve.id_vendedor  = v.id_vendedor
+JOIN  bicicletas b   ON b.id_bicicleta  = ve.id_bicicleta
+WHERE     b.categoria IN ('Montaña', 'Ruta')
+GROUP BY  t.id_tienda, t.nombre
+HAVING    monto_total > 2000000
+ORDER BY  monto_total DESC;
+\end{lstlisting}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Captura de pantalla 2026-11-11 143648.png}
+    \caption{Resultado de la Consulta 7 en MySQL Workbench.}
+\end{figure}
+
+\subsection*{Consulta 8}
+Liste el modelo y el precio de las bicicletas cuyo precio supera el promedio del catálogo, de mayor a menor.
+
+\begin{lstlisting}
+SELECT  b.modelo,
+        b.precio
+FROM    bicicletas b
+WHERE   b.precio > (SELECT AVG(precio) FROM bicicletas)
+ORDER BY b.precio DESC;
+\end{lstlisting}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Captura de pantalla 2026-11-11 143700.png}
+    \caption{Resultado de la Consulta 8 en MySQL Workbench.}
+\end{figure}
+
+\begin{cajanota}
+\textbf{Valor del promedio y su origen:} el promedio del catálogo es \clp{657490.00} y se obtuvo con la subconsulta escalar \texttt{SELECT AVG(precio) FROM bicicletas}, es decir, promediando los ocho modelos del catálogo (\num{5259920} / 8 = \num{657490}) y no las unidades efectivamente vendidas.
+\end{cajanota}
+
+\subsection*{Consulta 9}
+Liste los vendedores cuyo promedio de unidades por venta supera el promedio de unidades de todas las ventas de la cadena. Muestre el nombre y su promedio, de mayor a menor y, a igualdad, por nombre.
+
+\begin{lstlisting}
+SELECT  v.nombre            AS vendedor,
+        AVG(ve.unidades)    AS promedio_unidades
+FROM  vendedores v
+JOIN  ventas     ve  ON ve.id_vendedor = v.id_vendedor
+GROUP BY  v.id_vendedor, v.nombre
+HAVING    AVG(ve.unidades) > (SELECT AVG(unidades) FROM ventas)
+ORDER BY  promedio_unidades DESC, v.nombre ASC;
+\end{lstlisting}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Captura de pantalla 2026-11-11 143712.png}
+    \caption{Resultado de la Consulta 9 en MySQL Workbench.}
+\end{figure}
+
+\subsection*{Consulta 10}
+Liste todos los vendedores con el monto total que vendieron, incluidos los que no vendieron nada, de mayor a menor monto.
+
+\begin{lstlisting}
+SELECT  v.nombre                       AS vendedor,
+        SUM(ve.unidades * b.precio)    AS monto_total
+FROM       vendedores v
+LEFT JOIN  ventas     ve  ON ve.id_vendedor  = v.id_vendedor
+LEFT JOIN  bicicletas b   ON b.id_bicicleta  = ve.id_bicicleta
+GROUP BY   v.id_vendedor, v.nombre
+ORDER BY   monto_total DESC;
+\end{lstlisting}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Captura de pantalla 2026-11-11 143730.png}
+    \caption{Resultado de la Consulta 10 en MySQL Workbench.}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Captura de pantalla 2026-11-11 143738.png}
+    \caption{Resultado de la Consulta 10 en MySQL Workbench (continuación).}
+\end{figure}
+
+\begin{cajanota}
+\textbf{Por qué aparecen \texttt{NULL} y no cero:} Fernanda Lillo y Rubén Castro no muestran cero sino \texttt{NULL} porque el \texttt{LEFT JOIN} sí los conserva, pero no tienen ninguna fila de venta que sumar y \texttt{SUM()} sobre un conjunto vacío devuelve \texttt{NULL}; para que mostraran cero habría que agregar \texttt{COALESCE} a la suma, escribiendo \texttt{COALESCE(SUM(ve.unidades * b.precio), 0) AS monto\_total}.
+\end{cajanota}
+
+\end{document}
